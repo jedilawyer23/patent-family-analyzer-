@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import Header from './components/Header';
 import ApiKeyInput from './components/ApiKeyInput';
 import PatentInput from './components/PatentInput';
@@ -28,13 +28,23 @@ function App() {
     }
   };
 
+  const handleClearFamily = () => {
+    dispatch({ type: 'CLEAR_FAMILY' });
+    localStorage.removeItem('patent_family');
+    setSelectedMember(null);
+  };
+
   const canAnalyze = state.members.length >= 2 &&
     state.members.every(m => !m.loading) &&
     !state.analyzed;
 
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: '#F7F7F5' }}>
-      <Header apiKeySet={!!apiKey} />
+      <Header
+        apiKeySet={!!apiKey}
+        onClearFamily={handleClearFamily}
+        hasFamilyMembers={state.members.length > 0}
+      />
       <Box sx={{ p: 4 }}>
         <ApiKeyInput apiKey={apiKey} onApiKeyChange={setApiKey} />
 

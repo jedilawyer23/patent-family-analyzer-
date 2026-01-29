@@ -1,7 +1,7 @@
 import React from 'react';
-import { AppBar, Toolbar, Typography, Box, Chip } from '@mui/material';
+import { AppBar, Toolbar, Typography, Box, Chip, Button } from '@mui/material';
 
-function Header({ apiKeySet }) {
+function Header({ apiKeySet, onClearFamily, hasFamilyMembers }) {
   return (
     <AppBar
       position="static"
@@ -23,7 +23,21 @@ function Header({ apiKeySet }) {
         >
           Patent Family Analyzer
         </Typography>
-        <Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          {hasFamilyMembers && (
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={onClearFamily}
+              sx={{
+                fontSize: '13px',
+                color: '#6B6B6B',
+                borderColor: '#D8D8D6',
+              }}
+            >
+              Clear Family
+            </Button>
+          )}
           {apiKeySet ? (
             <Chip
               label="API Key: ••••"
