@@ -4,6 +4,7 @@ import Header from './components/Header';
 import ApiKeyInput from './components/ApiKeyInput';
 import PatentInput from './components/PatentInput';
 import FamilyTable from './components/FamilyTable';
+import DetailPanel from './components/DetailPanel';
 import { useFamily } from './context/FamilyContext';
 import { analyzeFamily } from './services/claude';
 
@@ -61,6 +62,11 @@ function App() {
           </Box>
         )}
       </Box>
+
+      <DetailPanel
+        member={selectedMember}
+        onClose={() => setSelectedMember(null)}
+      />
     </Box>
   );
 }
