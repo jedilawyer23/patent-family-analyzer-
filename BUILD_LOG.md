@@ -97,3 +97,84 @@ Don't try to perfect requirements before starting. Get a draft, look at it, then
 - Responsive fonts prevent usability issues on different screen sizes
 
 ---
+
+## Entry 5 - 2026-01-29
+
+### What I Asked Claude
+"Create implementation plan first"
+
+### What Claude Did
+Generated a detailed, 12-task implementation plan with:
+- Exact file paths for every file to create/modify
+- Complete code snippets (not pseudocode)
+- Verification steps for each task
+- Git commit messages ready to use
+
+### Key Technique Used
+**Detailed implementation planning with complete code** - The plan contained actual copyable code, not just descriptions like "add authentication."
+
+### Why This Worked
+When implementation started, each task was unambiguous. No interpretation needed. The subagents could execute exactly what was specified without making assumptions.
+
+### What I'd Tell a Beginner
+Ask for plans with ACTUAL CODE, not descriptions. "Create src/services/api.js with this exact content: [code]" beats "Create an API service" every time.
+
+### Mistakes Avoided or Caught
+- Plan included verification steps ("run npm run dev, expected: X") to catch issues early
+- Dependencies ordered correctly (theme before components, context before components that use it)
+
+---
+
+## Entry 6 - 2026-01-29
+
+### What I Asked Claude
+"Subagent-Driven" (chose option 1 for implementation)
+
+### What Claude Did
+Used "Subagent-Driven Development" approach:
+- Dispatched fresh subagent for each of 12 tasks
+- Each subagent received full task context from the plan
+- Spec compliance review after each task
+- Code quality review after spec approval
+- Marked tasks complete and moved to next
+
+### Key Technique Used
+**Subagent orchestration with reviews** - Main agent coordinates, fresh subagents execute each task, reviewers verify quality.
+
+### Why This Worked
+- Fresh context for each task (no confusion from accumulated context)
+- Two-stage reviews caught issues early
+- Main agent tracked progress without getting bogged down in implementation details
+- 12 tasks completed in sequence with quality gates
+
+### What I'd Tell a Beginner
+For multi-task projects, consider orchestrating subagents rather than doing everything in one conversation. Each subagent starts fresh and focused.
+
+### Mistakes Avoided or Caught
+- Spec reviews ensured each task matched requirements exactly
+- Code reviews caught minor issues (unused imports, missing types) as suggestions rather than blockers
+
+---
+
+## Session Summary - 2026-01-29
+
+### What We Built
+- Complete Patent Family Analyzer MVP
+- React + Vite + Material UI frontend
+- USPTO PatentsView API integration
+- Claude API integration for claim extraction and analysis
+- Harvey AI design system
+- 12 components/services total
+
+### Top 3 Techniques Demonstrated
+1. **Collaborative brainstorming** - Design through Q&A before coding
+2. **Implementation planning with complete code** - Plans you can execute, not interpret
+3. **Subagent orchestration** - Fresh agents per task with review gates
+
+### Best Teaching Moment
+The decision to cut features (color coding, export, unclaimed concepts) during brainstorming. Scope reduction happened BEFORE any code was written, saving hours of wasted effort. YAGNI in practice.
+
+### For the Webinar
+Highlight the brainstorming phase dialogue where we cut 4 features in 5 minutes. Show the implementation plan with actual code vs a vague task list. Compare: "Add USPTO integration" vs the 90-line service file in the plan.
+
+---

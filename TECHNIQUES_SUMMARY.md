@@ -99,9 +99,99 @@ Write a comprehensive design doc that serves as the implementation guide. Includ
 
 ---
 
-## Techniques Coming in Implementation Phase
+## 8. Implementation Planning with Complete Code
+**When to use:** Before any multi-file implementation
 
-- Test-driven development with Claude
-- Incremental building (smallest working version first)
-- Error-first development (handle failures before happy path)
-- Prompt engineering for consistent AI extraction
+Generate plans with actual code, not task descriptions. Each task should include:
+- Exact file paths
+- Complete code to copy-paste
+- Verification commands
+- Expected output
+- Commit message
+
+**Example prompt:**
+```
+"Create an implementation plan with actual code for each task, not descriptions"
+```
+
+**Bad:** "Task 3: Add authentication"
+**Good:** "Task 3: Create src/auth/login.js with this exact content: [100 lines of code]"
+
+---
+
+## 9. Bite-Sized Tasks (2-5 minutes each)
+**When to use:** Breaking down implementation work
+
+Each task should be:
+- One logical unit of work
+- Independently testable
+- Independently committable
+- Clear success criteria
+
+**Good granularity:**
+- Create one component file
+- Add one service
+- Wire up one integration
+
+**Bad granularity:**
+- "Build the frontend" (too big)
+- "Add semicolon" (too small)
+
+---
+
+## 10. Subagent Orchestration
+**When to use:** Multi-task implementations
+
+Instead of one long conversation, orchestrate fresh subagents:
+- Main agent reads plan, creates task list
+- Dispatch fresh subagent per task
+- Subagent implements, tests, commits
+- Review subagent verifies spec compliance
+- Review subagent checks code quality
+- Mark complete, move to next
+
+**Benefits:**
+- Fresh context per task (no accumulated confusion)
+- Quality gates between tasks
+- Main agent tracks progress without implementation details
+
+---
+
+## 11. Two-Stage Code Review
+**When to use:** After each implementation task
+
+1. **Spec compliance review** - Did they build what was requested? Nothing missing, nothing extra?
+2. **Code quality review** - Is it well-built? Clean, tested, maintainable?
+
+Run spec review first. Only run quality review after spec passes.
+
+---
+
+## 12. Prompt Engineering for AI Extraction
+**When to use:** When Claude analyzes content
+
+For consistent results, use structured prompts:
+- Clear role ("You are a patent analyst")
+- Specific output format ("Return ONLY the claim text")
+- Constraints ("Do not include claim numbers")
+- Examples if needed
+
+**Example from this project:**
+```
+systemPrompt: "You are a patent claim analyzer. Extract the first independent claim...
+Return ONLY the claim text, nothing else. Do not include the claim number."
+```
+
+---
+
+## Quick Reference Card
+
+| Phase | Key Technique |
+|-------|---------------|
+| Starting | Collaborative brainstorming with Q&A |
+| External APIs | Feasibility check before design |
+| UI Design | Reference existing projects |
+| Scope | Cut features aggressively (YAGNI) |
+| Planning | Complete code in plans, not descriptions |
+| Execution | Subagent per task with reviews |
+| AI Prompts | Structured prompts with constraints |
