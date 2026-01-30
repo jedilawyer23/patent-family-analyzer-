@@ -26,3 +26,16 @@ npm-debug.log*
 
 # Cache
 .cache/
+
+# API keys and sensitive files
+*.rtf
+claude api key*
+*api*key*
+
+# Planning docs and build logs (internal documentation)
+docs/plans/
+BUILD_LOG.md
+TECHNIQUES_SUMMARY.md
+
+# Claude Code
+.claude/

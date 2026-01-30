@@ -5,34 +5,42 @@ import {
   Button,
   Typography,
   Alert,
-  Collapse,
+  Link,
 } from '@mui/material';
 
-function ApiKeyInput({ apiKey, onApiKeyChange }) {
-  const [inputValue, setInputValue] = useState(apiKey);
-  const [isEditing, setIsEditing] = useState(!apiKey);
+function ApiKeyInput({ claudeApiKey, usptoApiKey, onClaudeKeyChange, onUsptoKeyChange }) {
+  const [claudeInput, setClaudeInput] = useState(claudeApiKey);
+  const [usptoInput, setUsptoInput] = useState(usptoApiKey);
+  const [isEditing, setIsEditing] = useState(!claudeApiKey || !usptoApiKey);
 
   const handleSave = () => {
-    if (inputValue.trim()) {
-      localStorage.setItem('claude_api_key', inputValue.trim());
-      onApiKeyChange(inputValue.trim());
+    if (claudeInput.trim() && usptoInput.trim()) {
+      localStorage.setItem('claude_api_key', claudeInput.trim());
+      localStorage.setItem('uspto_api_key', usptoInput.trim());
+      onClaudeKeyChange(claudeInput.trim());
+      onUsptoKeyChange(usptoInput.trim());
       setIsEditing(false);
     }
   };
 
   const handleClear = () => {
     localStorage.removeItem('claude_api_key');
-    setInputValue('');
-    onApiKeyChange('');
+    localStorage.removeItem('uspto_api_key');
+    setClaudeInput('');
+    setUsptoInput('');
+    onClaudeKeyChange('');
+    onUsptoKeyChange('');
     setIsEditing(true);
   };
 
-  if (!isEditing && apiKey) {
+  const bothKeysSet = claudeApiKey && usptoApiKey;
+
+  if (!isEditing && bothKeysSet) {
     return (
       <Box sx={{ mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Typography variant="body2">
-            Claude API Key configured
+            API Keys configured (Claude + USPTO)
           </Typography>
           <Button
             variant="outlined"
@@ -66,37 +74,67 @@ function ApiKeyInput({ apiKey, onApiKeyChange }) {
           '& .MuiAlert-icon': { color: '#8B6B3A' }
         }}
       >
-        This key is stored in your browser only and sent directly to Claude's API.
-        Don't use this on shared or public computers.
+        Keys are stored in your browser only. Don't use this on shared or public computers.
       </Alert>
-      <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
-        <TextField
-          label="Claude API Key"
-          type="password"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          placeholder="sk-ant-..."
-          size="small"
-          sx={{ width: '400px' }}
-        />
-        <Button
-          variant="contained"
-          onClick={handleSave}
-          disabled={!inputValue.trim()}
-        >
-          Save Key
-        </Button>
-        {apiKey && (
+
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+          <TextField
+            label="Claude API Key"
+            type="password"
+            value={claudeInput}
+            onChange={(e) => setClaudeInput(e.target.value)}
+            placeholder="sk-ant-..."
+            size="small"
+            sx={{ width: '400px' }}
+          />
+          <Typography variant="caption" sx={{ color: '#6B6B6B' }}>
+            From{' '}
+            <Link href="https://console.anthropic.com/" target="_blank" rel="noopener">
+              console.anthropic.com
+            </Link>
+          </Typography>
+        </Box>
+
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+          <TextField
+            label="USPTO PatentsView API Key"
+            type="password"
+            value={usptoInput}
+            onChange={(e) => setUsptoInput(e.target.value)}
+            placeholder="Your USPTO API key"
+            size="small"
+            sx={{ width: '400px' }}
+          />
+          <Typography variant="caption" sx={{ color: '#6B6B6B' }}>
+            Free from{' '}
+            <Link href="https://patentsview.org/apis/keyrequest" target="_blank" rel="noopener">
+              patentsview.org
+            </Link>
+          </Typography>
+        </Box>
+
+        <Box sx={{ display: 'flex', gap: 2 }}>
           <Button
-            variant="outlined"
-            onClick={() => {
-              setInputValue(apiKey);
-              setIsEditing(false);
-            }}
+            variant="contained"
+            onClick={handleSave}
+            disabled={!claudeInput.trim() || !usptoInput.trim()}
           >
-            Cancel
+            Save Keys
           </Button>
-        )}
+          {bothKeysSet && (
+            <Button
+              variant="outlined"
+              onClick={() => {
+                setClaudeInput(claudeApiKey);
+                setUsptoInput(usptoApiKey);
+                setIsEditing(false);
+              }}
+            >
+              Cancel
+            </Button>
+          )}
+        </Box>
       </Box>
     </Box>
   );

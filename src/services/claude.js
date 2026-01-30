@@ -35,7 +35,7 @@ async function callClaude(apiKey, systemPrompt, userPrompt) {
 export async function extractFirstIndependentClaim(apiKey, claimsText) {
   const systemPrompt = `You are a patent claim analyzer. Extract the first independent claim from the provided claims text.
 An independent claim is one that stands alone and does not reference another claim (no "according to claim X" or "The method of claim X").
-Return ONLY the claim text, nothing else. Do not include the claim number.`;
+Return the claim INCLUDING its claim number (e.g., "1. A method of..."). Return ONLY the claim text with its number, nothing else.`;
 
   const userPrompt = `Extract the first independent claim from this patent claims text:\n\n${claimsText}`;
 
@@ -94,6 +94,98 @@ Return JSON in this exact format:
     throw new Error('No JSON found in response');
   } catch (e) {
     throw new Error(`Failed to parse Claude response: ${e.message}`);
+  }
+}
+
+/**
+ * Parse a patent claim into structural elements
+ * Returns { preamble, elements: [{ id, text }] }
+ */
+export async function parseClaimElements(apiKey, claimText) {
+  const systemPrompt = `You are a patent claim parser. Parse the claim into its structural elements.
+
+Patent claims typically have:
+1. A preamble (e.g., "A method of unlocking a device, comprising:")
+2. Lettered or numbered elements (a), (b), (c) or limitations
+
+Even if the claim doesn't use explicit letters, identify the logical elements/limitations.
+
+Return JSON in this exact format:
+{
+  "preamble": "The introductory phrase before 'comprising', 'including', or similar",
+  "elements": [
+    {"id": "a", "text": "first limitation text"},
+    {"id": "b", "text": "second limitation text"}
+  ]
+}
+
+If the claim is a single run-on sentence with 'wherein' clauses, treat each 'wherein' as a separate element.`;
+
+  const userPrompt = `Parse this patent claim into elements:\n\n${claimText}`;
+
+  const response = await callClaude(apiKey, systemPrompt, userPrompt);
+
+  try {
+    const jsonMatch = response.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      return JSON.parse(jsonMatch[0]);
+    }
+    throw new Error('No JSON found in response');
+  } catch (e) {
+    // Return a fallback structure if parsing fails
+    return {
+      preamble: claimText.split(/,\s*(comprising|including|consisting)/i)[0] || claimText,
+      elements: []
+    };
+  }
+}
+
+/**
+ * Compare two parsed claims and generate element-level analysis
+ */
+export async function compareClaimElements(apiKey, claimA, claimB, patentANum, patentBNum) {
+  const systemPrompt = `You are a patent claim analyst. Compare two patent claims element-by-element.
+
+For each element, determine if it is:
+- "same": Substantially identical language
+- "modified": Same concept but different wording or scope
+- "added": Present only in Claim B (not in Claim A)
+- "removed": Present only in Claim A (not in Claim B)
+
+Also provide:
+1. A 1-2 sentence summary of the key changes
+2. The overall change type: "narrowing" (more limitations/specificity), "broadening" (fewer limitations), "different_scope" (shifted focus), or "substantially_similar"
+
+Return JSON:
+{
+  "elementComparison": [
+    {"elementA": "text or null", "elementB": "text or null", "status": "same|modified|added|removed", "note": "brief explanation if modified"}
+  ],
+  "preambleStatus": "same|modified",
+  "summary": "1-2 sentence summary of changes",
+  "changeType": "narrowing|broadening|different_scope|substantially_similar"
+}`;
+
+  const userPrompt = `Compare these two patent claims:
+
+CLAIM A (${patentANum}):
+${claimA}
+
+CLAIM B (${patentBNum}):
+${claimB}
+
+Analyze the differences:`;
+
+  const response = await callClaude(apiKey, systemPrompt, userPrompt);
+
+  try {
+    const jsonMatch = response.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      return JSON.parse(jsonMatch[0]);
+    }
+    throw new Error('No JSON found in response');
+  } catch (e) {
+    throw new Error(`Failed to parse comparison: ${e.message}`);
   }
 }
 

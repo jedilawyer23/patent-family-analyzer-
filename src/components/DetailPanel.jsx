@@ -6,9 +6,11 @@ import {
   IconButton,
   Button,
   Divider,
+  Link,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { useFamily } from '../context/FamilyContext';
 import { formatPatentNumber } from '../services/uspto';
 
@@ -77,18 +79,35 @@ function DetailPanel({ member, onClose }) {
       {/* Content */}
       <Box sx={{ p: 3, overflowY: 'auto' }}>
         {/* Patent Number */}
-        <Typography
-          variant="h2"
-          sx={{
-            fontFamily: 'Georgia, serif',
-            fontSize: '24px',
-            fontWeight: 400,
-            color: '#1A1A1A',
-            mb: 3,
-          }}
-        >
-          {formatPatentNumber(member.patentNumber)}
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
+          <Typography
+            variant="h2"
+            sx={{
+              fontFamily: 'Georgia, serif',
+              fontSize: '24px',
+              fontWeight: 400,
+              color: '#1A1A1A',
+            }}
+          >
+            {formatPatentNumber(member.patentNumber)}
+          </Typography>
+          {member.googlePatentsUrl && (
+            <Link
+              href={member.googlePatentsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="View on Google Patents"
+              sx={{
+                color: '#C85A54',
+                '&:hover': { color: '#A84A44' },
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              <OpenInNewIcon sx={{ fontSize: 20 }} />
+            </Link>
+          )}
+        </Box>
 
         {/* Title */}
         <Box sx={{ mb: 3 }}>
@@ -180,14 +199,6 @@ function DetailPanel({ member, onClose }) {
           </Box>
         )}
 
-        {/* No analysis yet */}
-        {!member.overlapsWith?.length && !member.differentiation && (
-          <Box sx={{ color: '#9B9B9B', textAlign: 'center', py: 2 }}>
-            <Typography variant="body2">
-              Add more patents and click "Analyze Overlap" to see relationships
-            </Typography>
-          </Box>
-        )}
       </Box>
     </Drawer>
   );
